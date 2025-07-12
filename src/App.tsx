@@ -50,7 +50,10 @@ const Home = () => {
           <motion.div
             key={images[prevImageIndex] + '-prev'}
             className="absolute inset-0 w-full h-full bg-cover bg-center"
-            style={{ backgroundImage: `url(${images[prevImageIndex]})` }}
+            style={{ 
+              backgroundImage: `url(${images[prevImageIndex]})`,
+              filter: 'brightness(0.75)' 
+            }}
             initial={{ opacity: 1 }}
             animate={{ opacity: 0 }}
             transition={{ duration: 0.7, ease: 'easeInOut' }}
@@ -59,7 +62,10 @@ const Home = () => {
         <motion.div
           key={images[currentImageIndex] + '-current'}
           className="absolute inset-0 w-full h-full bg-cover bg-center"
-          style={{ backgroundImage: `url(${images[currentImageIndex]})` }}
+          style={{ 
+            backgroundImage: `url(${images[currentImageIndex]})`,
+            filter: 'brightness(0.65)' 
+          }}
           initial={{ opacity: prevImageIndex === null ? 1 : 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: prevImageIndex === null ? 0 : 0.7, ease: 'easeInOut' }}
@@ -75,9 +81,9 @@ const Home = () => {
             <input
               type="text"
               placeholder="Where would you like to go?"
-              className="px-4 py-2 rounded-lg text-sm sm:text-base w-full sm:w-auto flex-1 shadow-md focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="px-4 py-2 rounded-lg text-sm sm:text-base w-full sm:w-auto flex-1 bg-white border border-gray-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-600 text-gray-900"
             />
-            <button className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm sm:text-base font-semibold hover:bg-red-700 transition-colors duration-200">
+            <button className="bg-gradient-to-r from-orange-500 to-red-600 text-white px-4 py-2 rounded-lg text-sm sm:text-base font-semibold hover:from-orange-600 hover:to-red-700 transition-colors duration-200">
               Search
             </button>
           </div>
