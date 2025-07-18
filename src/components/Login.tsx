@@ -26,11 +26,11 @@ const Login = () => {
   };
 
   return (
-    <div className="flex items-center justify-center w-full" style={{ backgroundImage: 'url(/images/login.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', minHeight: '89.1vh', marginTop: '-4px' }}>
+    <div className="flex items-center justify-center w-full px-4 sm:px-0" style={{ backgroundImage: 'url(/images/login.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', minHeight: '89.1vh', marginTop: '-4px' }}>
       <div className="relative w-full max-w-2xl mx-auto flex items-center justify-center">
         <div className="relative z-10 p-4 sm:p-6 rounded-2xl shadow-lg backdrop-blur-2xl text-center text-white flex flex-col justify-center w-full" style={{ height: '440px', width: '650px' }}>
-          <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 text-blue-700 drop-shadow">Sign In 🔑</h1>
-          <p className="mb-3 text-base sm:text-lg text-black">Welcome back! Log in to continue planning your adventures.</p>
+          <h1 className="text-2xl sm:text-3xl font-extrabold mb-2 text-blue-700 drop-shadow">Sign In 🔑</h1>
+          <p className="mb-3 text-sm sm:text-base text-black">Welcome back! Log in to continue planning your adventures.</p>
           <form className="flex flex-col gap-3" onSubmit={handleSubmit} style={{ flex: 1, justifyContent: 'center' }}>
             <div className="text-left mb-1">
               <label className="block mb-1 font-semibold text-blue-600">Email</label>
