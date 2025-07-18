@@ -28,9 +28,9 @@ const SignUp = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center fixed inset-0" style={{ height: '112vh', backgroundImage: 'url(/images/signup.jpg)', backgroundSize: 'cover', backgroundPosition: 'center,' }}>
-      <div className="relative w-full max-w-2xl mx-auto h-[520px] flex items-center justify-center">
-        <div className="relative z-10 p-8 sm:p-10 rounded-2xl shadow-lg backdrop-blur-2xl text-center text-white flex flex-col justify-center w-full h-full" style={{ height: '109%' }}>
+    <div className="flex items-center justify-center w-full" style={{ backgroundImage: 'url(/images/signup.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', minHeight: '89.1vh', marginTop: '-4px' }}>
+      <div className="relative w-full max-w-2xl mx-auto flex items-center justify-center">
+        <div className="relative z-10 p-4 sm:p-6 rounded-2xl shadow-lg backdrop-blur-2xl text-center text-white flex flex-col justify-center w-full" style={{ minHeight: '300px' }}>
           <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 text-red-600 drop-shadow">Create Account 🚀</h1>
           <p className="mb-3 text-base sm:text-lg text-black">Join us and start planning your adventures!</p>
           <form className="flex flex-col gap-3" onSubmit={handleSubmit} style={{ flex: 1, justifyContent: 'center' }}>
