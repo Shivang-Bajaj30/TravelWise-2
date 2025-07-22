@@ -1,6 +1,6 @@
 
 const prod = 'https://travelwise-backend.onrender.com';
-const dev = 'http://localhost:8080/api';
+// const dev = 'http://localhost:8080/api';
 
 const DEV_URL = prod;
 
