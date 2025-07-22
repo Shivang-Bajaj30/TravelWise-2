@@ -1,13 +1,25 @@
 import { Link, useLocation } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react'; // Import useEffect and useRef
 import { useAuth } from '../context/AuthContext'; // Import useAuth hook
-import { FaUserCircle } from 'react-icons/fa'; //(you might need to install react-icons: npm install react-icons)
+import { FaUserCircle } from 'react-icons/fa'; // Import a user icon
 
 const Navbar = () => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State for user dropdown
+  // State for the main mobile menu (opened by hamburger)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); 
+  // State for desktop user dropdown
+  const [isDesktopDropdownOpen, setIsDesktopDropdownOpen] = useState(false); 
+  // State for mobile user dropdown (for the user icon's dropdown)
+  const [isMobileUserDropdownOpen, setIsMobileUserDropdownOpen] = useState(false); 
+
   const location = useLocation();
   const { user, logoutUser, loadingAuth } = useAuth(); // Get user, logoutUser, and loadingAuth from context
+
+  // Refs for detecting clicks outside dropdowns
+  const desktopDropdownRef = useRef<HTMLDivElement>(null);
+  const desktopButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileDropdownRef = useRef<HTMLDivElement>(null);
+  const mobileButtonRef = useRef<HTMLButtonElement>(null);
+
 
   // Helper to check if link is active
   const isActive = (path: string) => location.pathname === path;
@@ -15,11 +27,61 @@ const Navbar = () => {
   // Handles logout action
   const handleLogout = () => {
     logoutUser(); // Call logout function from context
-    setIsDropdownOpen(false); // Close dropdown on logout
-    setIsMobileMenuOpen(false); // Close mobile menu if open
+    setIsDesktopDropdownOpen(false); // Close desktop dropdown on logout
+    setIsMobileUserDropdownOpen(false); // Close mobile user dropdown on logout
+    setIsMobileMenuOpen(false); // Close main mobile menu on logout
     // You might want to navigate to login or home after logout, e.g.:
     // navigate('/login'); 
   };
+
+  // Effect to handle clicks outside the desktop dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        desktopDropdownRef.current && 
+        !desktopDropdownRef.current.contains(event.target as Node) &&
+        desktopButtonRef.current &&
+        !desktopButtonRef.current.contains(event.target as Node)
+      ) {
+        setIsDesktopDropdownOpen(false);
+      }
+    };
+
+    if (isDesktopDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDesktopDropdownOpen]); // Re-run effect when dropdown state changes
+
+  // Effect to handle clicks outside the mobile user dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        mobileDropdownRef.current && 
+        !mobileDropdownRef.current.contains(event.target as Node) &&
+        mobileButtonRef.current &&
+        !mobileButtonRef.current.contains(event.target as Node)
+      ) {
+        setIsMobileUserDropdownOpen(false);
+      }
+    };
+
+    if (isMobileUserDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMobileUserDropdownOpen]); // Re-run effect when dropdown state changes
+
 
   // While authentication state is being loaded (e.g., from localStorage),
   // return null or a loading indicator to prevent UI flickering.
@@ -38,7 +100,7 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Desktop Menu */}
+          {/* Desktop Menu (hidden on mobile/tablet) */}
           <div className="hidden lg:flex items-center gap-6 xl:gap-8">
             <Link
               to="/"
@@ -76,18 +138,22 @@ const Navbar = () => {
           <div className="hidden lg:flex items-center gap-2 xl:gap-4 relative">
             {user ? (
               <>
-                {/* User Icon Button */}
+                {/* User Icon Button for Desktop */}
                 <button
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  ref={desktopButtonRef} // Attach ref
+                  onClick={() => setIsDesktopDropdownOpen(!isDesktopDropdownOpen)}
                   className="p-2 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-300"
                   aria-label="User menu"
                 >
                   <FaUserCircle className="w-6 h-6" /> {/* User icon from react-icons */}
                 </button>
 
-                {/* Dropdown Menu */}
-                {isDropdownOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-xl py-1 z-20">
+                {/* Desktop Dropdown Menu */}
+                {isDesktopDropdownOpen && (
+                  <div 
+                    ref={desktopDropdownRef} // Attach ref
+                    className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-xl py-1 z-20"
+                  >
                     {/* User Info */}
                     <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
                       Signed in as: <span className="font-semibold">{user.email}</span>
@@ -96,7 +162,7 @@ const Navbar = () => {
                     <Link
                       to="/profile" // Example link for user profile page
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50"
-                      onClick={() => { setIsDropdownOpen(false); setIsMobileMenuOpen(false); }}
+                      onClick={() => { setIsDesktopDropdownOpen(false); }}
                     >
                       Profile
                     </Link>
@@ -111,7 +177,7 @@ const Navbar = () => {
                 )}
               </>
             ) : (
-              // Auth Links (Login/Signup) when not logged in
+              // Auth Links (Login/Signup) when not logged in (Desktop)
               <>
                 <Link
                   to="/login"
@@ -129,8 +195,66 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="lg:hidden flex items-center">
+          {/* Mobile/Tablet Header: Auth Elements & Hamburger Menu */}
+          {/* This div is visible on mobile/tablet (hidden on large screens) */}
+          {/* It contains the user icon OR auth buttons, and the hamburger menu button */}
+          <div className="lg:hidden flex items-center gap-2 ml-auto"> {/* ml-auto pushes to right */}
+            {user ? (
+              // User icon for mobile/tablet when logged in (now a button to open its own dropdown)
+              <div className="relative flex-shrink-0">
+                <button
+                  ref={mobileButtonRef} // Attach ref
+                  onClick={() => setIsMobileUserDropdownOpen(!isMobileUserDropdownOpen)}
+                  className="p-2 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-300"
+                  aria-label="User menu"
+                >
+                  <FaUserCircle className="w-6 h-6" /> {/* User icon */}
+                </button>
+                {/* Mobile User Dropdown Menu */}
+                {isMobileUserDropdownOpen && (
+                  <div 
+                    ref={mobileDropdownRef} // Attach ref
+                    className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-xl py-1 z-20"
+                  >
+                    <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
+                      Signed in as: <span className="font-semibold">{user.email}</span>
+                    </div>
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50"
+                      onClick={() => { setIsMobileUserDropdownOpen(false); }}
+                    >
+                      Profile
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50 font-semibold"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              // Login/Signup buttons for mobile/tablet when not logged in
+              <>
+                <Link
+                  to="/login"
+                  className={`px-2 py-1.5 rounded-lg font-semibold border border-red-200 transition-all duration-300 text-xs whitespace-nowrap ${isActive('/login') ? 'bg-red-100 text-red-700 shadow' : 'text-red-600 hover:bg-red-50 hover:text-red-700 hover:shadow-sm'}`}
+                  onClick={() => setIsMobileMenuOpen(false)} // Close mobile menu if it was open
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  className={`px-2.5 py-1.5 rounded-lg font-semibold transition-all duration-300 shadow-sm text-xs whitespace-nowrap ${isActive('/signup') ? 'bg-gradient-to-r from-red-600 via-pink-500 to-red-400 text-white shadow-lg' : 'bg-gradient-to-r from-red-500 via-pink-400 to-red-300 text-white hover:from-red-600 hover:via-pink-500 hover:to-red-400 hover:shadow-lg'}`}
+                  onClick={() => setIsMobileMenuOpen(false)} // Close mobile menu if it was open
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
+            {/* Hamburger Menu Button (always visible on mobile/tablet) */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className={`text-red-700 hover:text-red-500 focus:outline-none p-2 rounded-lg border border-red-200 shadow-sm transition-all duration-300 bg-white/80 ${isMobileMenuOpen ? 'ring-2 ring-red-300' : ''}`}
@@ -154,12 +278,14 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Navigation Links (Expanded via Hamburger) */}
+        {/* This div will appear when the hamburger is clicked */}
         <div
           className={`lg:hidden bg-white/95 backdrop-blur-sm border-b border-red-200 shadow-md transition-all duration-300 overflow-hidden ${isMobileMenuOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0 pointer-events-none'}`}
           style={{ transitionProperty: 'max-height, opacity' }}
         >
           <div className="flex flex-col gap-3 px-4 py-4 sm:py-6">
+            {/* Regular mobile navigation links */}
             <Link
               to="/"
               className={`font-medium px-3 py-2 rounded-lg transition-all duration-300 border border-transparent ${isActive('/') ? 'bg-red-100 text-red-700 shadow' : 'text-gray-900 hover:text-red-600 hover:bg-red-50 hover:shadow-sm'}`}
@@ -195,49 +321,6 @@ const Navbar = () => {
             >
               Contact
             </Link>
-            <div className="border-t border-red-100 pt-3 mt-2">
-              {user ? (
-                <>
-                  {/* User Info in Mobile Menu */}
-                  <div className="px-3 py-2 text-sm text-gray-700 border-b border-gray-100">
-                    Signed in as: <span className="font-semibold">{user.email}</span>
-                  </div>
-                  {/* Profile Link (example) */}
-                  <Link
-                    to="/profile"
-                    className="block px-3 py-2 text-sm text-gray-700 hover:bg-red-50 rounded-lg"
-                    onClick={() => { setIsDropdownOpen(false); setIsMobileMenuOpen(false); }}
-                  >
-                    Profile
-                  </Link>
-                  {/* Logout Button */}
-                  <button
-                    onClick={handleLogout}
-                    className="block w-full text-left px-3 py-2 text-sm text-red-700 hover:bg-red-50 font-semibold rounded-lg mt-2"
-                  >
-                    Logout
-                  </button>
-                </>
-              ) : (
-                // Auth Links (Login/Signup) in Mobile Menu when not logged in
-                <>
-                  <Link
-                    to="/login"
-                    className={`font-semibold px-3 py-2.5 rounded-lg border border-red-200 transition-all duration-300 block text-center ${isActive('/login') ? 'bg-red-100 text-red-700 shadow' : 'text-red-600 hover:bg-red-50 hover:text-red-700 hover:shadow-sm'}`}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    to="/signup"
-                    className={`font-semibold px-5 py-2.5 rounded-lg text-center transition-all duration-300 shadow-sm block mt-3 ${isActive('/signup') ? 'bg-gradient-to-r from-red-600 via-pink-500 to-red-400 text-white shadow-lg' : 'bg-gradient-to-r from-red-500 via-pink-400 to-red-300 text-white hover:from-red-600 hover:via-pink-500 hover:to-red-400 hover:shadow-lg'}`}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Sign Up
-                  </Link>
-                </>
-              )}
-            </div>
           </div>
         </div>
       </div>
