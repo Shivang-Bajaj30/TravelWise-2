@@ -6,12 +6,6 @@ interface SignupRequest {
   password: string;
 }
 
-interface SignupResponse {
-  id: string;
-  username: string;
-  email: string;
-}
-
 export const signup = async (userData: SignupRequest): Promise<Response> => {
   try {
     const response = await fetch(`${API_BASE_URL}/signup`, {
