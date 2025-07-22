@@ -1,4 +1,8 @@
-const API_BASE_URL = 'http://localhost:8080/api';
+
+const prod = 'https://travelwise-backend.onrender.com';
+const dev = 'http://localhost:8080/api';
+
+const DEV_URL = prod;
 
 interface SignupRequest {
   name: string;
@@ -8,7 +12,7 @@ interface SignupRequest {
 
 export const signup = async (userData: SignupRequest): Promise<Response> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/signup`, {
+    const response = await fetch(`${DEV_URL}/signup`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -25,7 +29,7 @@ export const signup = async (userData: SignupRequest): Promise<Response> => {
 
 
 export async function login(email: string, password: string): Promise<any> {
-  const res = await fetch(`${API_BASE_URL}/login`, {
+  const res = await fetch(`${DEV_URL}/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
