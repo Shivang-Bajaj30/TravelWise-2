@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { login } from '../lib/api'; // Import your login function from api.ts
+import { useAuth } from '../context/AuthContext'; // Import useAuth hook for global state
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -6,23 +9,44 @@ const Login = () => {
     password: ''
   });
   const [message, setMessage] = useState<{ type: string; text: string }>({ type: '', text: '' });
-  const loading = false;
+  const [loading, setLoading] = useState(false); // Local loading state for the button
+  const { loginUser } = useAuth(); // Get the loginUser function from AuthContext
+  const navigate = useNavigate(); // Hook to programmatically navigate
 
+  // Handles input changes and clears messages
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    if (message.text) setMessage({ type: '', text: '' });
+    if (message.text) setMessage({ type: '', text: '' }); // Clear message on input change
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setMessage({
-      type: 'info',
-      text: 'Demo login: demo@example.com / password123'
-    });
-    setTimeout(() => {
-      setMessage({ type: '', text: '' });
-    }, 2000);
+  // Handles form submission
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault(); // Prevent default form submission behavior
+    setLoading(true); // Set loading to true when API call starts
+
+    try {
+      // Call the login function from api.ts
+      const userData = await login(formData.email, formData.password);
+      
+      // Assuming your backend returns user data directly on successful login
+      console.log('Login successful:', userData);
+      loginUser(userData); // Update global auth state and local storage
+      setMessage({ type: 'success', text: 'Login successful!' }); // Show success message
+      
+      // Redirect to home page or dashboard after a short delay
+      setTimeout(() => {
+        navigate('/'); 
+      }, 1000); 
+
+    } catch (error: any) {
+      // Handle login errors
+      console.error('Error during login:', error);
+      // Display the error message from the backend or a generic one
+      setMessage({ type: 'error', text: error.message || 'Login failed. Please try again.' });
+    } finally {
+      setLoading(false); // Set loading to false after API call completes
+    }
   };
 
   return (

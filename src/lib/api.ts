@@ -1,8 +1,14 @@
+const dev_url = "https://travelwise-backend.onrender.com/api";
+const local_url = "http://localhost:8080/api";
 
-const prod = 'https://travelwise-backend.onrender.com/api';
-// const dev = 'http://localhost:8080/api';
+if (!dev_url) {
+  console.error("Dev URL is not defined. Please check your environment variables.");
+}
+if (!local_url) {
+  console.error("Local URL is not defined. Please check your environment variables.");
+}
 
-const DEV_URL = prod;
+const BASE_URL = local_url;
 
 interface SignupRequest {
   name: string;
@@ -12,7 +18,7 @@ interface SignupRequest {
 
 export const signup = async (userData: SignupRequest): Promise<Response> => {
   try {
-    const response = await fetch(`${DEV_URL}/signup`, {
+    const response = await fetch(`${BASE_URL}/signup`, { // Changed to BASE_URL
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -20,7 +26,6 @@ export const signup = async (userData: SignupRequest): Promise<Response> => {
       body: JSON.stringify(userData),
     });
     return response; 
-
   } catch (error: any) {
     console.error('Error during signup:', error);
     throw error;
@@ -28,8 +33,9 @@ export const signup = async (userData: SignupRequest): Promise<Response> => {
 };
 
 
+// The login function, now improved to handle both JSON and plain text error responses
 export async function login(email: string, password: string): Promise<any> {
-  const res = await fetch(`${DEV_URL}/login`, {
+  const res = await fetch(`${BASE_URL}/login`, { // Changed to BASE_URL
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -37,7 +43,28 @@ export async function login(email: string, password: string): Promise<any> {
     body: JSON.stringify({ email, password }),
   });
 
+  if (!res.ok) {
+    let errorMessage = 'Login failed';
+    const contentType = res.headers.get('content-type');
+
+    if (contentType && contentType.includes('application/json')) {
+      try {
+        const errorData = await res.json();
+       
+        errorMessage = errorData.message || errorData.error || res.statusText;
+      } catch (e) {
+        
+        errorMessage = await res.text(); 
+        if (!errorMessage) errorMessage = res.statusText; 
+      }
+    } else {
+      errorMessage = await res.text();
+      if (!errorMessage) errorMessage = res.statusText;
+    }
+    throw new Error(errorMessage);
+  }
+
+  
   const data = await res.json();
-  if (!res.ok) throw new Error(data.message || 'Login failed');
   return data;
 }

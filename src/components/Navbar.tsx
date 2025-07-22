@@ -1,12 +1,31 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
+import { useAuth } from '../context/AuthContext'; // Import useAuth hook
+import { FaUserCircle } from 'react-icons/fa'; //(you might need to install react-icons: npm install react-icons)
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State for user dropdown
   const location = useLocation();
+  const { user, logoutUser, loadingAuth } = useAuth(); // Get user, logoutUser, and loadingAuth from context
 
   // Helper to check if link is active
   const isActive = (path: string) => location.pathname === path;
+
+  // Handles logout action
+  const handleLogout = () => {
+    logoutUser(); // Call logout function from context
+    setIsDropdownOpen(false); // Close dropdown on logout
+    setIsMobileMenuOpen(false); // Close mobile menu if open
+    // You might want to navigate to login or home after logout, e.g.:
+    // navigate('/login'); 
+  };
+
+  // While authentication state is being loaded (e.g., from localStorage),
+  // return null or a loading indicator to prevent UI flickering.
+  if (loadingAuth) {
+    return null; // Or return a simple loading spinner for the navbar
+  }
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-red-100/80 via-white/60 to-red-100/80 border-b border-red-200 shadow-lg backdrop-blur-2xl">
@@ -53,20 +72,61 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Auth Links */}
-          <div className="hidden lg:flex items-center gap-2 xl:gap-4">
-            <Link
-              to="/login"
-              className={`px-2 xl:px-4 py-2 rounded-lg font-semibold border border-red-200 transition-all duration-300 text-xs xl:text-base ${isActive('/login') ? 'bg-red-100 text-red-700 shadow' : 'text-red-600 hover:bg-red-50 hover:text-red-700 hover:shadow-sm'}`}
-            >
-              Login
-            </Link>
-            <Link
-              to="/signup"
-              className={`px-3 xl:px-5 py-2 rounded-lg font-semibold transition-all duration-300 shadow-sm text-xs xl:text-base ${isActive('/signup') ? 'bg-gradient-to-r from-red-600 via-pink-500 to-red-400 text-white shadow-lg' : 'bg-gradient-to-r from-red-500 via-pink-400 to-red-300 text-white hover:from-red-600 hover:via-pink-500 hover:to-red-400 hover:shadow-lg hover:scale-105'}`}
-            >
-              Sign Up
-            </Link>
+          {/* Auth Links / User Icon (Desktop) */}
+          <div className="hidden lg:flex items-center gap-2 xl:gap-4 relative">
+            {user ? (
+              <>
+                {/* User Icon Button */}
+                <button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="p-2 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-300"
+                  aria-label="User menu"
+                >
+                  <FaUserCircle className="w-6 h-6" /> {/* User icon from react-icons */}
+                </button>
+
+                {/* Dropdown Menu */}
+                {isDropdownOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-xl py-1 z-20">
+                    {/* User Info */}
+                    <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
+                      Signed in as: <span className="font-semibold">{user.email}</span>
+                    </div>
+                    {/* Profile Link (example) */}
+                    <Link
+                      to="/profile" // Example link for user profile page
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50"
+                      onClick={() => { setIsDropdownOpen(false); setIsMobileMenuOpen(false); }}
+                    >
+                      Profile
+                    </Link>
+                    {/* Logout Button */}
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50 font-semibold"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              // Auth Links (Login/Signup) when not logged in
+              <>
+                <Link
+                  to="/login"
+                  className={`px-2 xl:px-4 py-2 rounded-lg font-semibold border border-red-200 transition-all duration-300 text-xs xl:text-base ${isActive('/login') ? 'bg-red-100 text-red-700 shadow' : 'text-red-600 hover:bg-red-50 hover:text-red-700 hover:shadow-sm'}`}
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  className={`px-3 xl:px-5 py-2 rounded-lg font-semibold transition-all duration-300 shadow-sm text-xs xl:text-base ${isActive('/signup') ? 'bg-gradient-to-r from-red-600 via-pink-500 to-red-400 text-white shadow-lg' : 'bg-gradient-to-r from-red-500 via-pink-400 to-red-300 text-white hover:from-red-600 hover:via-pink-500 hover:to-red-400 hover:shadow-lg hover:scale-105'}`}
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -136,20 +196,47 @@ const Navbar = () => {
               Contact
             </Link>
             <div className="border-t border-red-100 pt-3 mt-2">
-              <Link
-                to="/login"
-                className={`font-semibold px-3 py-2.5 rounded-lg border border-red-200 transition-all duration-300 block text-center ${isActive('/login') ? 'bg-red-100 text-red-700 shadow' : 'text-red-600 hover:bg-red-50 hover:text-red-700 hover:shadow-sm'}`}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Login
-              </Link>
-              <Link
-                to="/signup"
-                className={`font-semibold px-5 py-2.5 rounded-lg text-center transition-all duration-300 shadow-sm block mt-3 ${isActive('/signup') ? 'bg-gradient-to-r from-red-600 via-pink-500 to-red-400 text-white shadow-lg' : 'bg-gradient-to-r from-red-500 via-pink-400 to-red-300 text-white hover:from-red-600 hover:via-pink-500 hover:to-red-400 hover:shadow-lg'}`}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Sign Up
-              </Link>
+              {user ? (
+                <>
+                  {/* User Info in Mobile Menu */}
+                  <div className="px-3 py-2 text-sm text-gray-700 border-b border-gray-100">
+                    Signed in as: <span className="font-semibold">{user.email}</span>
+                  </div>
+                  {/* Profile Link (example) */}
+                  <Link
+                    to="/profile"
+                    className="block px-3 py-2 text-sm text-gray-700 hover:bg-red-50 rounded-lg"
+                    onClick={() => { setIsDropdownOpen(false); setIsMobileMenuOpen(false); }}
+                  >
+                    Profile
+                  </Link>
+                  {/* Logout Button */}
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full text-left px-3 py-2 text-sm text-red-700 hover:bg-red-50 font-semibold rounded-lg mt-2"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                // Auth Links (Login/Signup) in Mobile Menu when not logged in
+                <>
+                  <Link
+                    to="/login"
+                    className={`font-semibold px-3 py-2.5 rounded-lg border border-red-200 transition-all duration-300 block text-center ${isActive('/login') ? 'bg-red-100 text-red-700 shadow' : 'text-red-600 hover:bg-red-50 hover:text-red-700 hover:shadow-sm'}`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className={`font-semibold px-5 py-2.5 rounded-lg text-center transition-all duration-300 shadow-sm block mt-3 ${isActive('/signup') ? 'bg-gradient-to-r from-red-600 via-pink-500 to-red-400 text-white shadow-lg' : 'bg-gradient-to-r from-red-500 via-pink-400 to-red-300 text-white hover:from-red-600 hover:via-pink-500 hover:to-red-400 hover:shadow-lg'}`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
