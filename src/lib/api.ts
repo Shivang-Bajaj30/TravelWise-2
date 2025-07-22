@@ -8,7 +8,7 @@ if (!local_url) {
   console.error("Local URL is not defined. Please check your environment variables.");
 }
 
-const BASE_URL = local_url;
+const BASE_URL = dev_url;
 
 interface SignupRequest {
   name: string;
@@ -35,7 +35,7 @@ export const signup = async (userData: SignupRequest): Promise<Response> => {
 
 // The login function, now improved to handle both JSON and plain text error responses
 export async function login(email: string, password: string): Promise<any> {
-  const res = await fetch(`${BASE_URL}/login`, { // Changed to BASE_URL
+  const res = await fetch(`${BASE_URL}/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
