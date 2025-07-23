@@ -1,44 +1,41 @@
 import { Link, useLocation } from 'react-router-dom';
-import { useState, useEffect, useRef } from 'react'; // Import useEffect and useRef
-import { useAuth } from '../context/AuthContext'; // Import useAuth hook
-import { FaUserCircle } from 'react-icons/fa'; // Import a user icon
+import { useState, useEffect, useRef } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { FaUserCircle, FaTimes, FaBars } from 'react-icons/fa';
+
+// Define the User type based on the AuthContext (adjust according to your actual context type)
+interface User {
+  email: string;
+  // Add other user properties if they exist in your AuthContext
+}
 
 const Navbar = () => {
-  // State for the main mobile menu (opened by hamburger)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); 
-  // State for desktop user dropdown
-  const [isDesktopDropdownOpen, setIsDesktopDropdownOpen] = useState(false); 
-  // State for mobile user dropdown (for the user icon's dropdown)
-  const [isMobileUserDropdownOpen, setIsMobileUserDropdownOpen] = useState(false); 
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isMobileUserDropdownOpen, setIsMobileUserDropdownOpen] = useState(false);
+  const [isDesktopDropdownOpen, setIsDesktopDropdownOpen] = useState(false);
 
   const location = useLocation();
-  const { user, logoutUser, loadingAuth } = useAuth(); // Get user, logoutUser, and loadingAuth from context
+  const { user, logoutUser, loadingAuth } = useAuth();
 
-  // Refs for detecting clicks outside dropdowns
+  // Type refs with HTMLDivElement and HTMLButtonElement
   const desktopDropdownRef = useRef<HTMLDivElement>(null);
   const desktopButtonRef = useRef<HTMLButtonElement>(null);
   const mobileDropdownRef = useRef<HTMLDivElement>(null);
   const mobileButtonRef = useRef<HTMLButtonElement>(null);
 
+  const isActive = (path: string): boolean => location.pathname === path;
 
-  // Helper to check if link is active
-  const isActive = (path: string) => location.pathname === path;
-
-  // Handles logout action
   const handleLogout = () => {
-    logoutUser(); // Call logout function from context
-    setIsDesktopDropdownOpen(false); // Close desktop dropdown on logout
-    setIsMobileUserDropdownOpen(false); // Close mobile user dropdown on logout
-    setIsMobileMenuOpen(false); // Close main mobile menu on logout
-    // You might want to navigate to login or home after logout, e.g.:
-    // navigate('/login'); 
+    logoutUser();
+    setIsDesktopDropdownOpen(false);
+    setIsMobileUserDropdownOpen(false);
+    setIsDrawerOpen(false);
   };
 
-  // Effect to handle clicks outside the desktop dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
-        desktopDropdownRef.current && 
+        desktopDropdownRef.current &&
         !desktopDropdownRef.current.contains(event.target as Node) &&
         desktopButtonRef.current &&
         !desktopButtonRef.current.contains(event.target as Node)
@@ -56,13 +53,12 @@ const Navbar = () => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isDesktopDropdownOpen]); // Re-run effect when dropdown state changes
+  }, [isDesktopDropdownOpen]);
 
-  // Effect to handle clicks outside the mobile user dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
-        mobileDropdownRef.current && 
+        mobileDropdownRef.current &&
         !mobileDropdownRef.current.contains(event.target as Node) &&
         mobileButtonRef.current &&
         !mobileButtonRef.current.contains(event.target as Node)
@@ -80,149 +76,235 @@ const Navbar = () => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isMobileUserDropdownOpen]); // Re-run effect when dropdown state changes
+  }, [isMobileUserDropdownOpen]);
 
+  useEffect(() => {
+    setIsDrawerOpen(false);
+    setIsMobileUserDropdownOpen(false);
+  }, [location.pathname]);
 
-  // While authentication state is being loaded (e.g., from localStorage),
-  // return null or a loading indicator to prevent UI flickering.
   if (loadingAuth) {
-    return null; // Or return a simple loading spinner for the navbar
+    return null;
   }
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-red-100/80 via-white/60 to-red-100/80 border-b border-red-200 shadow-lg backdrop-blur-2xl">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-19">
-          {/* Logo */}
-          <div className="flex-shrink-0">
-            <Link to="/" className="text-xl sm:text-2xl font-extrabold text-red-700 tracking-tight hover:text-red-500 transition-all duration-300 hover:scale-105">
-              TravelWise
-            </Link>
-          </div>
+    <>
+      {/* Top Bar */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-red-100/80 via-white/60 to-red-100/80 border-b border-red-200 shadow-lg backdrop-blur-2xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 sm:h-19">
+            {/* Logo */}
+            <div className="flex-shrink-0">
+              <Link
+                to="/"
+                className="text-xl sm:text-2xl font-extrabold text-red-700 tracking-tight hover:text-red-500 transition-all duration-300 hover:scale-105"
+              >
+                TravelWise
+              </Link>
+            </div>
 
-          {/* Desktop Menu (hidden on mobile/tablet) */}
-          <div className="hidden lg:flex items-center gap-6 xl:gap-8">
+            {/* Desktop Menu */}
+            <div className="hidden lg:flex items-center gap-6 xl:gap-8">
+              <Link
+                to="/"
+                className={`px-2 xl:px-3 py-2 rounded-lg font-medium transition-all duration-300 border border-transparent text-sm xl:text-base ${isActive('/') ? 'bg-red-100 text-red-700 shadow' : 'text-gray-900 hover:text-red-600 hover:bg-red-50 hover:shadow-sm'}`}
+              >
+                Home
+              </Link>
+              <Link
+                to="/destinations"
+                className={`px-2 xl:px-3 py-2 rounded-lg font-medium transition-all duration-300 border border-transparent text-sm xl:text-base ${isActive('/destinations') ? 'bg-red-100 text-red-700 shadow' : 'text-gray-900 hover:text-red-600 hover:bg-red-50 hover:shadow-sm'}`}
+              >
+                Destinations
+              </Link>
+              <Link
+                to="/packages"
+                className={`px-2 xl:px-3 py-2 rounded-lg font-medium transition-all duration-300 border border-transparent text-sm xl:text-base ${isActive('/packages') ? 'bg-red-100 text-red-700 shadow' : 'text-gray-900 hover:text-red-600 hover:bg-red-50 hover:shadow-sm'}`}
+              >
+                Packages
+              </Link>
+              <Link
+                to="/about"
+                className={`px-2 xl:px-3 py-2 rounded-lg font-medium transition-all duration-300 border border-transparent text-sm xl:text-base ${isActive('/about') ? 'bg-red-100 text-red-700 shadow' : 'text-gray-900 hover:text-red-600 hover:bg-red-50 hover:shadow-sm'}`}
+              >
+                About
+              </Link>
+              <Link
+                to="/contact"
+                className={`px-2 xl:px-3 py-2 rounded-lg font-medium transition-all duration-300 border border-transparent text-sm xl:text-base ${isActive('/contact') ? 'bg-red-100 text-red-700 shadow' : 'text-gray-900 hover:text-red-600 hover:bg-red-50 hover:shadow-sm'}`}
+              >
+                Contact
+              </Link>
+            </div>
+
+            {/* Desktop Auth Links / User Icon */}
+            <div className="hidden lg:flex items-center gap-2 xl:gap-4 relative">
+              {user ? (
+                <>
+                  <button
+                    ref={desktopButtonRef}
+                    onClick={() => setIsDesktopDropdownOpen(!isDesktopDropdownOpen)}
+                    className="p-2 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-300"
+                    aria-label="User menu"
+                  >
+                    <FaUserCircle className="w-6 h-6" />
+                  </button>
+                  {isDesktopDropdownOpen && (
+                    <div
+                      ref={desktopDropdownRef}
+                      className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-xl py-1 z-20"
+                    >
+                      <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
+                        Signed in as: <span className="font-semibold">{user.email}</span>
+                      </div>
+                      <Link
+                        to="/profile"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50"
+                        onClick={() => setIsDesktopDropdownOpen(false)}
+                      >
+                        Profile
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50 font-semibold"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    className={`px-2 xl:px-4 py-2 rounded-lg font-semibold border border-red-200 transition-all duration-300 text-xs xl:text-base ${isActive('/login') ? 'bg-red-100 text-red-700 shadow' : 'text-red-600 hover:bg-red-50 hover:text-red-700 hover:shadow-sm'}`}
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className={`px-3 xl:px-5 py-2 rounded-lg font-semibold transition-all duration-300 shadow-sm text-xs xl:text-base ${isActive('/signup') ? 'bg-gradient-to-r from-red-600 via-pink-500 to-red-400 text-white shadow-lg' : 'bg-gradient-to-r from-red-500 via-pink-400 to-red-300 text-white hover:from-red-600 hover:via-pink-500 hover:to-red-400 hover:shadow-lg hover:scale-105'}`}
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )}
+            </div>
+
+            {/* Mobile/Tablet Auth Links and Hamburger */}
+            <div className="lg:hidden flex items-center gap-2">
+              {!user && (
+                <>
+                  <Link
+                    to="/login"
+                    className={`px-2 py-1.5 rounded-lg font-semibold border border-red-200 transition-all duration-300 text-xs whitespace-nowrap ${isActive('/login') ? 'bg-red-100 text-red-700 shadow' : 'text-red-600 hover:bg-red-50 hover:text-red-700 hover:shadow-sm'}`}
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className={`px-2.5 py-1.5 rounded-lg font-semibold transition-all duration-300 shadow-sm text-xs whitespace-nowrap ${isActive('/signup') ? 'bg-gradient-to-r from-red-600 via-pink-500 to-red-400 text-white shadow-lg' : 'bg-gradient-to-r from-red-500 via-pink-400 to-red-300 text-white hover:from-red-600 hover:via-pink-500 hover:to-red-400 hover:shadow-lg'}`}
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )}
+              <button
+                onClick={() => setIsDrawerOpen(!isDrawerOpen)}
+                className="text-red-700 hover:text-red-500 focus:outline-none p-2 rounded-lg border border-red-200 shadow-sm transition-all duration-300 bg-white/80"
+                aria-label="Toggle menu"
+              >
+                <FaBars className="w-6 h-6 sm:w-7 sm:h-7" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Mobile/Tablet Side Drawer */}
+      <div
+        className={`fixed top-0 left-0 h-full w-64 bg-white/95 backdrop-blur-sm border-r border-red-200 shadow-lg z-50 transform transition-transform duration-300 ease-in-out ${isDrawerOpen ? 'translate-x-0' : '-translate-x-full'}`}
+      >
+        <div className="flex flex-col h-full">
+          {/* Drawer Header with Close Button */}
+          <div className="flex justify-between items-center p-4 border-b border-red-200">
             <Link
               to="/"
-              className={`px-2 xl:px-3 py-2 rounded-lg font-medium transition-all duration-300 border border-transparent text-sm xl:text-base ${isActive('/') ? 'bg-red-100 text-red-700 shadow' : 'text-gray-900 hover:text-red-600 hover:bg-red-50 hover:shadow-sm'}`}
+              className="text-xl font-extrabold text-red-700 tracking-tight hover:text-red-500"
+              onClick={() => setIsDrawerOpen(false)}
+            >
+              TravelWise
+            </Link>
+            <button
+              onClick={() => setIsDrawerOpen(false)}
+              className="text-red-700 hover:text-red-500 p-2 rounded-lg"
+              aria-label="Close menu"
+            >
+              <FaTimes className="w-6 h-6" />
+            </button>
+          </div>
+
+          {/* Drawer Links */}
+          <div className="flex flex-col gap-2 p-4 pt-6">
+            <Link
+              to="/"
+              className={`px-3 py-2 rounded-lg font-medium transition-all duration-300 border border-transparent ${isActive('/') ? 'bg-red-100 text-red-700 shadow' : 'text-gray-900 hover:text-red-600 hover:bg-red-50 hover:shadow-sm'}`}
+              onClick={() => setIsDrawerOpen(false)}
             >
               Home
             </Link>
             <Link
               to="/destinations"
-              className={`px-2 xl:px-3 py-2 rounded-lg font-medium transition-all duration-300 border border-transparent text-sm xl:text-base ${isActive('/destinations') ? 'bg-red-100 text-red-700 shadow' : 'text-gray-900 hover:text-red-600 hover:bg-red-50 hover:shadow-sm'}`}
+              className={`px-3 py-2 rounded-lg font-medium transition-all duration-300 border border-transparent ${isActive('/destinations') ? 'bg-red-100 text-red-700 shadow' : 'text-gray-900 hover:text-red-600 hover:bg-red-50 hover:shadow-sm'}`}
+              onClick={() => setIsDrawerOpen(false)}
             >
               Destinations
             </Link>
             <Link
               to="/packages"
-              className={`px-2 xl:px-3 py-2 rounded-lg font-medium transition-all duration-300 border border-transparent text-sm xl:text-base ${isActive('/packages') ? 'bg-red-100 text-red-700 shadow' : 'text-gray-900 hover:text-red-600 hover:bg-red-50 hover:shadow-sm'}`}
+              className={`px-3 py-2 rounded-lg font-medium transition-all duration-300 border border-transparent ${isActive('/packages') ? 'bg-red-100 text-red-700 shadow' : 'text-gray-900 hover:text-red-600 hover:bg-red-50 hover:shadow-sm'}`}
+              onClick={() => setIsDrawerOpen(false)}
             >
               Packages
             </Link>
             <Link
               to="/about"
-              className={`px-2 xl:px-3 py-2 rounded-lg font-medium transition-all duration-300 border border-transparent text-sm xl:text-base ${isActive('/about') ? 'bg-red-100 text-red-700 shadow' : 'text-gray-900 hover:text-red-600 hover:bg-red-50 hover:shadow-sm'}`}
+              className={`px-3 py-2 rounded-lg font-medium transition-all duration-300 border border-transparent ${isActive('/about') ? 'bg-red-100 text-red-700 shadow' : 'text-gray-900 hover:text-red-600 hover:bg-red-50 hover:shadow-sm'}`}
+              onClick={() => setIsDrawerOpen(false)}
             >
               About
             </Link>
             <Link
               to="/contact"
-              className={`px-2 xl:px-3 py-2 rounded-lg font-medium transition-all duration-300 border border-transparent text-sm xl:text-base ${isActive('/contact') ? 'bg-red-100 text-red-700 shadow' : 'text-gray-900 hover:text-red-600 hover:bg-red-50 hover:shadow-sm'}`}
+              className={`px-3 py-2 rounded-lg font-medium transition-all duration-300 border border-transparent ${isActive('/contact') ? 'bg-red-100 text-red-700 shadow' : 'text-gray-900 hover:text-red-600 hover:bg-red-50 hover:shadow-sm'}`}
+              onClick={() => setIsDrawerOpen(false)}
             >
               Contact
             </Link>
           </div>
 
-          {/* Auth Links / User Icon (Desktop) */}
-          <div className="hidden lg:flex items-center gap-2 xl:gap-4 relative">
-            {user ? (
-              <>
-                {/* User Icon Button for Desktop */}
+          {/* Mobile User Icon (if logged in) */}
+          {user && (
+            <div className="mt-auto p-4 border-t border-red-200">
+              <div className="relative">
                 <button
-                  ref={desktopButtonRef} // Attach ref
-                  onClick={() => setIsDesktopDropdownOpen(!isDesktopDropdownOpen)}
-                  className="p-2 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-300"
-                  aria-label="User menu"
-                >
-                  <FaUserCircle className="w-6 h-6" /> {/* User icon from react-icons */}
-                </button>
-
-                {/* Desktop Dropdown Menu */}
-                {isDesktopDropdownOpen && (
-                  <div 
-                    ref={desktopDropdownRef} // Attach ref
-                    className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-xl py-1 z-20"
-                  >
-                    {/* User Info */}
-                    <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
-                      Signed in as: <span className="font-semibold">{user.email}</span>
-                    </div>
-                    {/* Profile Link (example) */}
-                    <Link
-                      to="/profile" // Example link for user profile page
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50"
-                      onClick={() => { setIsDesktopDropdownOpen(false); }}
-                    >
-                      Profile
-                    </Link>
-                    {/* Logout Button */}
-                    <button
-                      onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50 font-semibold"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                )}
-              </>
-            ) : (
-              // Auth Links (Login/Signup) when not logged in (Desktop)
-              <>
-                <Link
-                  to="/login"
-                  className={`px-2 xl:px-4 py-2 rounded-lg font-semibold border border-red-200 transition-all duration-300 text-xs xl:text-base ${isActive('/login') ? 'bg-red-100 text-red-700 shadow' : 'text-red-600 hover:bg-red-50 hover:text-red-700 hover:shadow-sm'}`}
-                >
-                  Login
-                </Link>
-                <Link
-                  to="/signup"
-                  className={`px-3 xl:px-5 py-2 rounded-lg font-semibold transition-all duration-300 shadow-sm text-xs xl:text-base ${isActive('/signup') ? 'bg-gradient-to-r from-red-600 via-pink-500 to-red-400 text-white shadow-lg' : 'bg-gradient-to-r from-red-500 via-pink-400 to-red-300 text-white hover:from-red-600 hover:via-pink-500 hover:to-red-400 hover:shadow-lg hover:scale-105'}`}
-                >
-                  Sign Up
-                </Link>
-              </>
-            )}
-          </div>
-
-          {/* Mobile/Tablet Header: Auth Elements & Hamburger Menu */}
-          {/* This div is visible on mobile/tablet (hidden on large screens) */}
-          {/* It contains the user icon OR auth buttons, and the hamburger menu button */}
-          <div className="lg:hidden flex items-center gap-2 ml-auto"> {/* ml-auto pushes to right */}
-            {user ? (
-              // User icon for mobile/tablet when logged in (now a button to open its own dropdown)
-              <div className="relative flex-shrink-0">
-                <button
-                  ref={mobileButtonRef} // Attach ref
+                  ref={mobileButtonRef}
                   onClick={() => setIsMobileUserDropdownOpen(!isMobileUserDropdownOpen)}
-                  className="p-2 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-300"
+                  className="w-full flex items-center gap-2 p-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-300"
                   aria-label="User menu"
                 >
-                  <FaUserCircle className="w-6 h-6" /> {/* User icon */}
+                  <FaUserCircle className="w-6 h-6" />
+                  <span>{user.email}</span>
                 </button>
-                {/* Mobile User Dropdown Menu */}
                 {isMobileUserDropdownOpen && (
-                  <div 
-                    ref={mobileDropdownRef} // Attach ref
-                    className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-xl py-1 z-20"
+                  <div
+                    ref={mobileDropdownRef}
+                    className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-1 z-10"
                   >
-                    <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
-                      Signed in as: <span className="font-semibold">{user.email}</span>
-                    </div>
                     <Link
                       to="/profile"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50"
-                      onClick={() => { setIsMobileUserDropdownOpen(false); }}
+                      onClick={() => setIsMobileUserDropdownOpen(false)}
                     >
                       Profile
                     </Link>
@@ -235,96 +317,19 @@ const Navbar = () => {
                   </div>
                 )}
               </div>
-            ) : (
-              // Login/Signup buttons for mobile/tablet when not logged in
-              <>
-                <Link
-                  to="/login"
-                  className={`px-2 py-1.5 rounded-lg font-semibold border border-red-200 transition-all duration-300 text-xs whitespace-nowrap ${isActive('/login') ? 'bg-red-100 text-red-700 shadow' : 'text-red-600 hover:bg-red-50 hover:text-red-700 hover:shadow-sm'}`}
-                  onClick={() => setIsMobileMenuOpen(false)} // Close mobile menu if it was open
-                >
-                  Login
-                </Link>
-                <Link
-                  to="/signup"
-                  className={`px-2.5 py-1.5 rounded-lg font-semibold transition-all duration-300 shadow-sm text-xs whitespace-nowrap ${isActive('/signup') ? 'bg-gradient-to-r from-red-600 via-pink-500 to-red-400 text-white shadow-lg' : 'bg-gradient-to-r from-red-500 via-pink-400 to-red-300 text-white hover:from-red-600 hover:via-pink-500 hover:to-red-400 hover:shadow-lg'}`}
-                  onClick={() => setIsMobileMenuOpen(false)} // Close mobile menu if it was open
-                >
-                  Sign Up
-                </Link>
-              </>
-            )}
-            {/* Hamburger Menu Button (always visible on mobile/tablet) */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className={`text-red-700 hover:text-red-500 focus:outline-none p-2 rounded-lg border border-red-200 shadow-sm transition-all duration-300 bg-white/80 ${isMobileMenuOpen ? 'ring-2 ring-red-300' : ''}`}
-              aria-label="Toggle menu"
-            >
-              <svg
-                className="w-6 h-6 sm:w-7 sm:h-7"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d={isMobileMenuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'}
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Navigation Links (Expanded via Hamburger) */}
-        {/* This div will appear when the hamburger is clicked */}
-        <div
-          className={`lg:hidden bg-white/95 backdrop-blur-sm border-b border-red-200 shadow-md transition-all duration-300 overflow-hidden ${isMobileMenuOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0 pointer-events-none'}`}
-          style={{ transitionProperty: 'max-height, opacity' }}
-        >
-          <div className="flex flex-col gap-3 px-4 py-4 sm:py-6">
-            {/* Regular mobile navigation links */}
-            <Link
-              to="/"
-              className={`font-medium px-3 py-2 rounded-lg transition-all duration-300 border border-transparent ${isActive('/') ? 'bg-red-100 text-red-700 shadow' : 'text-gray-900 hover:text-red-600 hover:bg-red-50 hover:shadow-sm'}`}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Home
-            </Link>
-            <Link
-              to="/destinations"
-              className={`font-medium px-3 py-2 rounded-lg transition-all duration-300 border border-transparent ${isActive('/destinations') ? 'bg-red-100 text-red-700 shadow' : 'text-gray-900 hover:text-red-600 hover:bg-red-50 hover:shadow-sm'}`}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Destinations
-            </Link>
-            <Link
-              to="/packages"
-              className={`font-medium px-3 py-2 rounded-lg transition-all duration-300 border border-transparent ${isActive('/packages') ? 'bg-red-100 text-red-700 shadow' : 'text-gray-900 hover:text-red-600 hover:bg-red-50 hover:shadow-sm'}`}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Packages
-            </Link>
-            <Link
-              to="/about"
-              className={`font-medium px-3 py-2 rounded-lg transition-all duration-300 border border-transparent ${isActive('/about') ? 'bg-red-100 text-red-700 shadow' : 'text-gray-900 hover:text-red-600 hover:bg-red-50 hover:shadow-sm'}`}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              About
-            </Link>
-            <Link
-              to="/contact"
-              className={`font-medium px-3 py-2 rounded-lg transition-all duration-300 border border-transparent ${isActive('/contact') ? 'bg-red-100 text-red-700 shadow' : 'text-gray-900 hover:text-red-600 hover:bg-red-50 hover:shadow-sm'}`}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Contact
-            </Link>
-          </div>
+            </div>
+          )}
         </div>
       </div>
-    </nav>
+
+      {/* Overlay to close drawer when clicking outside */}
+      {isDrawerOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setIsDrawerOpen(false)}
+        />
+      )}
+    </>
   );
 };
 
