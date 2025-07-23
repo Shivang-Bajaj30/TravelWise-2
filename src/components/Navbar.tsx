@@ -3,12 +3,6 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { FaUserCircle, FaTimes, FaBars } from 'react-icons/fa';
 
-// Define the User type based on the AuthContext (adjust according to your actual context type)
-interface User {
-  email: string;
-  // Add other user properties if they exist in your AuthContext
-}
-
 const Navbar = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isMobileUserDropdownOpen, setIsMobileUserDropdownOpen] = useState(false);
