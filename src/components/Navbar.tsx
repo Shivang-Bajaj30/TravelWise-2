@@ -3,6 +3,12 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { FaUserCircle, FaTimes, FaBars } from 'react-icons/fa';
 
+// Define the User type based on the AuthContext (adjust according to your actual context type)
+interface User {
+  email: string;
+  // Add other user properties if they exist in your AuthContext
+}
+
 const Navbar = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isMobileUserDropdownOpen, setIsMobileUserDropdownOpen] = useState(false);
@@ -187,7 +193,7 @@ const Navbar = () => {
 
             {/* Mobile/Tablet Auth Links and Hamburger */}
             <div className="lg:hidden flex items-center gap-2">
-              {!user && (
+              {!user ? (
                 <>
                   <Link
                     to="/login"
@@ -202,6 +208,40 @@ const Navbar = () => {
                     Sign Up
                   </Link>
                 </>
+              ) : (
+                <div className="relative flex-shrink-0">
+                  <button
+                    ref={mobileButtonRef}
+                    onClick={() => setIsMobileUserDropdownOpen(!isMobileUserDropdownOpen)}
+                    className="p-2 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-300"
+                    aria-label="User menu"
+                  >
+                    <FaUserCircle className="w-6 h-6" />
+                  </button>
+                  {isMobileUserDropdownOpen && (
+                    <div
+                      ref={mobileDropdownRef}
+                      className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-1 z-10"
+                    >
+                      <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
+                        Signed in as: <span className="font-semibold">{user.email}</span>
+                      </div>
+                      <Link
+                        to="/profile"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50"
+                        onClick={() => setIsMobileUserDropdownOpen(false)}
+                      >
+                        Profile
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50 font-semibold"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
               )}
               <button
                 onClick={() => setIsDrawerOpen(!isDrawerOpen)}
@@ -276,43 +316,6 @@ const Navbar = () => {
               Contact
             </Link>
           </div>
-
-          {/* Mobile User Icon (if logged in) */}
-          {user && (
-            <div className="mt-auto p-4 border-t border-red-200">
-              <div className="relative">
-                <button
-                  ref={mobileButtonRef}
-                  onClick={() => setIsMobileUserDropdownOpen(!isMobileUserDropdownOpen)}
-                  className="w-full flex items-center gap-2 p-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-300"
-                  aria-label="User menu"
-                >
-                  <FaUserCircle className="w-6 h-6" />
-                  <span>{user.email}</span>
-                </button>
-                {isMobileUserDropdownOpen && (
-                  <div
-                    ref={mobileDropdownRef}
-                    className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-1 z-10"
-                  >
-                    <Link
-                      to="/profile"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50"
-                      onClick={() => setIsMobileUserDropdownOpen(false)}
-                    >
-                      Profile
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50 font-semibold"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
