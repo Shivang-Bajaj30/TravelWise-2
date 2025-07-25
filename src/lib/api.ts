@@ -98,7 +98,14 @@
 const dev_url = "https://travelwise-backend.onrender.com/api";
 const local_url = "http://localhost:8080/api";
 
-const BASE_URL = local_url;
+if (!dev_url) {
+  console.error("Dev URL is not defined. Please check your environment variables.");
+}
+if (!local_url) {
+  console.error("Local URL is not defined. Please check your environment variables.");
+}
+
+const BASE_URL = dev_url;
 
 export interface SignupRequest {
   name: string;
