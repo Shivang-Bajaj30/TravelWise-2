@@ -192,7 +192,7 @@ const Home: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Hero Section */}
-      <div className="relative w-full flex items-center justify-center overflow-hidden h-[45vh] sm:h-[60vh] lg:h-[80vh] mt-[-3px]">
+      <div className="relative w-full flex items-center justify-center h-[45vh] sm:h-[60vh] lg:h-[80vh] mt-[-3px]">
         {isAnimating && prevImageIndex !== null && (
           <motion.div
             key={images[prevImageIndex] + '-prev'}
@@ -224,7 +224,7 @@ const Home: React.FC = () => {
           <p className="text-white mb-4 max-w-xs sm:max-w-md md:max-w-lg lg:max-w-2xl text-sm sm:text-lg md:text-xl lg:text-2xl" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.25)' }}>
             Plan your perfect trip with TravelWise – explore breathtaking destinations and curated packages.
           </p>
-          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2 w-full max-w-xs sm:max-w-md relative">
+          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2 w-full max-w-xs sm:max-w-md relative z-[1010]">
             <div className="relative w-full sm:w-auto flex-1">
               <input
                 type="text"
@@ -235,17 +235,21 @@ const Home: React.FC = () => {
                 className="px-4 py-2 rounded-lg text-sm sm:text-base w-full bg-white border border-gray-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-600 text-gray-900"
               />
               {showSuggestions && suggestions.length > 0 && (
-                <ul className="absolute z-20 w-full bg-white border border-gray-200 rounded-lg mt-1 max-h-60 overflow-y-auto shadow-lg">
-                  {suggestions.map((suggestion) => (
-                    <li
-                      key={suggestion.display_name}
-                      onClick={() => handleSuggestionClick(suggestion)}
-                      className="px-4 py-2 text-sm text-gray-900 hover:bg-blue-100 cursor-pointer"
-                    >
-                      {suggestion.display_name}
-                    </li>
-                  ))}
-                </ul>
+
+                <ul
+  className="absolute top-full left-0 w-full bg-white border border-gray-300 rounded-md shadow-md mt-1 z-[1000] max-h-60 overflow-y-auto"
+>
+  {suggestions.map((suggestion, index) => (
+    <li
+      key={index}
+      onClick={() => handleSuggestionClick(suggestion)}
+      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+    >
+      {suggestion.display_name}
+    </li>
+  ))}
+</ul>
+
               )}
             </div>
             <button
