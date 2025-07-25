@@ -1,3 +1,137 @@
+```java
+package com.travelwise.Backend.Controller;
+
+import com.travelwise.Backend.Model.User;
+import com.travelwise.Backend.Service.UserService;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpHeaders;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api")
+public class UserController {
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Value("${mapbox.api.key}")
+    private String mapboxApiKey;
+
+    @PostMapping("/signup")
+    public ResponseEntity<String> signup(@RequestBody User user) {
+        try {
+            userService.registerUser(user);
+            return ResponseEntity.ok("User registered successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
+        String email = credentials.get("email");
+        String password = credentials.get("password");
+
+        try {
+            User user = userService.login(email, password);
+            return ResponseEntity.ok(user);
+        } catch (RuntimeException e) {
+            String message = e.getMessage();
+            if ("User not found".equals(message)) {
+                return ResponseEntity.status(404).body(message);
+            } else if ("Incorrect password".equals(message)) {
+                return ResponseEntity.status(401).body(message);
+            } else {
+                return ResponseEntity.badRequest().body("Login failed");
+            }
+        }
+    }
+
+    // Endpoint to fetch location suggestions from Mapbox Geocoding API
+    @GetMapping("/locations")
+    public ResponseEntity<List<NominatimResult>> getLocationSuggestions(@RequestParam String query) {
+        try {
+            String url = UriComponentsBuilder.fromHttpUrl("https://api.mapbox.com/geocoding/v5/mapbox.places/{query}.json")
+                    .queryParam("access_token", mapboxApiKey)
+                    .queryParam("limit", 5)
+                    .queryParam("autocomplete", true)
+                    .buildAndExpand(query)
+                    .toUriString();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("User-Agent", "TravelWise/1.0 (your.email@example.com)"); // Replace with your contact info
+            NominatimResult[] results = restTemplate.getForObject(url, NominatimResult[].class);
+            if (results == null || results.length == 0) {
+                return ResponseEntity.noContent().build();
+            }
+            return ResponseEntity.ok(Arrays.asList(results));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null); // Handle Mapbox API errors
+        }
+    }
+
+    // Endpoint to handle trip details submission
+    @PostMapping("/trip")
+    public ResponseEntity<String> submitTripDetails(@RequestBody TripDetails tripDetails) {
+        try {
+            // Placeholder for AI itinerary generation
+            System.out.println("Received trip details: " + tripDetails);
+            return ResponseEntity.ok("Trip details received successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to process trip details: " + e.getMessage());
+        }
+    }
+}
+
+// Data class for Nominatim results
+@Setter
+@Getter
+class NominatimResult {
+    // Getters and setters
+    private String display_name;
+    private String lat;
+    private String lon;
+
+}
+
+// Data class for trip details
+@Setter
+@Getter
+class TripDetails {
+    // Getters and setters
+    private String location;
+    private int travelers;
+    private String startDate;
+    private String endDate;
+    private String preferences;
+
+    @Override
+    public String toString() {
+        return "TripDetails{location='" + location + "', travelers=" + travelers +
+                ", startDate='" + startDate + "', endDate='" + endDate +
+                "', preferences='" + preferences + "'}";
+    }
+}
+
+```
+
+
+This above is my spring boot controller, and i want you to update my frontend code so that it can work with this backend. Update the trip and location parts.
+
+```tsx
 // import { useState, useEffect } from 'react';
 // import { motion } from 'framer-motion';
 
@@ -108,10 +242,11 @@
 
 // export default Home;
 
+
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { fetchLocationSuggestions } from '../lib/api'; // update with correct path
+import axios from 'axios';
 
 interface NominatimResult {
   display_name: string;
@@ -167,9 +302,17 @@ const Home: React.FC = () => {
         setShowSuggestions(false);
         return;
       }
-      const results = await fetchLocationSuggestions(location);
-      setSuggestions(results);
-      setShowSuggestions(results.length > 0);
+      try {
+        const response = await axios.get<NominatimResult[]>('http://localhost:8080/api/locations', {
+          params: { query: location },
+        });
+        setSuggestions(response.data);
+        setShowSuggestions(true);
+      } catch (error) {
+        console.error('Error fetching suggestions:', error);
+        setSuggestions([]);
+        setShowSuggestions(false);
+      }
     };
 
     const debounce = setTimeout(fetchSuggestions, 300);
@@ -250,7 +393,7 @@ const Home: React.FC = () => {
             </div>
             <button
               type="submit"
-              className="bg-gradient-to-r from-orange-500 to-red-600 text-white px-4 py-2 rounded-lg text-sm sm:text-base font-semibold hover:from-orange-600 hover:to-red-700 transition-colors duration-200"
+              className="bg-gradient-to-r from-orange-500 to-red-600 text-white px-4 py-2 rounded-lg text-sm sm:text-base font-semibold hover:from-orange-600 hover:to-red-700-700 transition-colors duration-200"
             >
               Search
             </button>
@@ -281,3 +424,4 @@ const Home: React.FC = () => {
 };
 
 export default Home;
+```

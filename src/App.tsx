@@ -7,6 +7,7 @@ import SignUp from './pages/SignUp';
 import Home  from './pages/Home';
 import Destinations  from './pages/Destinations';
 import Packages from './pages/Packages';
+import TripDetails from './pages/TripDetails';
 
 const App = () => (
   <div className="relative bg-gray-50 min-h-screen">
@@ -20,6 +21,8 @@ const App = () => (
         <Route path="/signup" element={<SignUp />} />
         <Route path="/destinations" element={<Destinations />} />
         <Route path="/packages" element={<Packages />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/trip-details" element={<TripDetails selectedLocation={null} />} />
       </Routes>
     </div>
   </div>
