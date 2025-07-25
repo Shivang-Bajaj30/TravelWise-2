@@ -8,7 +8,7 @@ if (!local_url) {
   console.error("Local URL is not defined. Please check your environment variables.");
 }
 
-const BASE_URL = dev_url;
+const BASE_URL = local_url;
 
 interface SignupRequest {
   name: string;
