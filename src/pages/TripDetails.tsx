@@ -34,8 +34,8 @@ const TripDetailsPage: React.FC<TripDetailsProps> = ({ selectedLocation }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 overflow-hidden" style={{ height: '100vh' }}>
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-19" style={{ height: 'calc(100vh - 64px)' }}>
+    <div className="min-h-[88vh] bg-gray-100 overflow-hidden" style={{ height: '88vh' }}>
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-19" style={{ height: 'calc(100vh - 64px)', paddingTop: 21 }}>
         <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">
           Plan Your Trip to {selectedLocationFromState || 'Your Destination'}
         </h1>
@@ -53,7 +53,7 @@ const TripDetailsPage: React.FC<TripDetailsProps> = ({ selectedLocation }) => {
                 setTravelers(Math.max(1, parseInt(e.target.value)))
               }
               min="1"
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600" 
             />
           </div>
           <div className="mb-4">
