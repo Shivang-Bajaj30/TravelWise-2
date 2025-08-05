@@ -111,12 +111,17 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { fetchLocationSuggestions } from '../lib/api'; // update with correct path
+import { fetchLocationSuggestions } from '../lib/api';
 
-interface NominatimResult {
-  display_name: string;
-  lat: string;
-  lon: string;
+interface OlaMapsResult {
+  description: string;
+  geometry: {
+    location: {
+      lat: number;
+      lng: number;
+    };
+  };
+  place_id: string;
 }
 
 const Home: React.FC = () => {
@@ -132,7 +137,7 @@ const Home: React.FC = () => {
   const [prevImageIndex, setPrevImageIndex] = useState<number | null>(null);
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
   const [location, setLocation] = useState<string>('');
-  const [suggestions, setSuggestions] = useState<NominatimResult[]>([]);
+  const [suggestions, setSuggestions] = useState<OlaMapsResult[]>([]);
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
@@ -176,8 +181,8 @@ const Home: React.FC = () => {
     return () => clearTimeout(debounce);
   }, [location]);
 
-  const handleSuggestionClick = (suggestion: NominatimResult) => {
-    setLocation(suggestion.display_name);
+  const handleSuggestionClick = (suggestion: OlaMapsResult) => {
+    setLocation(suggestion.description);
     setSuggestions([]);
     setShowSuggestions(false);
   };
@@ -235,21 +240,17 @@ const Home: React.FC = () => {
                 className="px-4 py-2 rounded-lg text-sm sm:text-base w-full bg-white border border-gray-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-600 text-gray-900"
               />
               {showSuggestions && suggestions.length > 0 && (
-
-                <ul
-  className="absolute top-full left-0 w-full bg-white border border-gray-300 rounded-md shadow-md mt-1 z-[1000] max-h-60 overflow-y-auto"
->
-  {suggestions.map((suggestion, index) => (
-    <li
-      key={index}
-      onClick={() => handleSuggestionClick(suggestion)}
-      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-    >
-      {suggestion.display_name}
-    </li>
-  ))}
-</ul>
-
+                <ul className="absolute top-full left-0 w-full bg-white border border-gray-300 rounded-md shadow-md mt-1 z-[1000] max-h-60 overflow-y-auto">
+                  {suggestions.map((suggestion, index) => (
+                    <li
+                      key={index}
+                      onClick={() => handleSuggestionClick(suggestion)}
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    >
+                      {suggestion.description}
+                    </li>
+                  ))}
+                </ul>
               )}
             </div>
             <button

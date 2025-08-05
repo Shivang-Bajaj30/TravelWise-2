@@ -8,7 +8,7 @@ if (!local_url) {
   console.error("Local URL is not defined. Please check your environment variables.");
 }
 
-const BASE_URL = dev_url;
+const BASE_URL = local_url;
 
 export interface SignupRequest {
   name: string;
@@ -48,19 +48,6 @@ export interface NominatimResult {
   lon: string;
 }
 
-export const fetchLocationSuggestions = async (query: string): Promise<NominatimResult[]> => {
-  try {
-    const res = await fetch(`${BASE_URL}/locations?query=${encodeURIComponent(query)}`);
-    if (!res.ok) {
-      throw new Error('Failed to fetch location suggestions');
-    }
-    return await res.json();
-  } catch (error) {
-    console.error('Error fetching location suggestions:', error);
-    return [];
-  }
-};
-
 export interface TripDetails {
   location: string;
   travelers: number;
@@ -86,5 +73,40 @@ export const submitTripDetails = async (trip: TripDetails): Promise<string> => {
   } catch (error) {
     console.error('Error submitting trip:', error);
     throw error;
+  }
+};
+
+export interface OlaMapsResult {
+  description: string;
+  geometry: {
+    location: {
+      lat: number;
+      lng: number;
+    };
+  };
+  place_id: string;
+}
+
+export const fetchLocationSuggestions = async (query: string): Promise<OlaMapsResult[]> => {
+  try {
+    const response = await fetch(`${BASE_URL}/locations?query=${encodeURIComponent(query)}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Request-Id': crypto.randomUUID(),
+        'X-Correlation-Id': crypto.randomUUID(),
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch location suggestions: ${response.status} ${response.statusText}`);
+    }
+
+    const data: OlaMapsResult[] = await response.json();
+    console.log('Fetched suggestions:', data);
+    return data;
+  } catch (error) {
+    console.error('Error fetching location suggestions:', error);
+    return [];
   }
 };
