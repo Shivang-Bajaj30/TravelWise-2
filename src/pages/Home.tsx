@@ -1,16 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { fetchLocationSuggestions } from '../lib/api';
+import { getLocationSuggestions } from '../lib/api';
 
-interface OlaMapsResult {
+interface GoMapsResult {
   description: string;
-  geometry: {
-    location: {
-      lat: number;
-      lng: number;
-    };
-  };
   place_id: string;
 }
 
@@ -27,10 +21,10 @@ const Home: React.FC = () => {
   const [prevImageIndex, setPrevImageIndex] = useState<number | null>(null);
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
   const [location, setLocation] = useState<string>('');
-  const [suggestions, setSuggestions] = useState<OlaMapsResult[]>([]);
+  const [suggestions, setSuggestions] = useState<GoMapsResult[]>([]);
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const suggestionsRef = useRef<HTMLDivElement>(null); // New: Ref for the suggestions container
+  const suggestionsRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -63,16 +57,21 @@ const Home: React.FC = () => {
         setShowSuggestions(false);
         return;
       }
-      const results = await fetchLocationSuggestions(location);
-      setSuggestions(results);
-      setShowSuggestions(results.length > 0);
+      try {
+        const results = await getLocationSuggestions(location);
+        setSuggestions(results);
+        setShowSuggestions(results.length > 0);
+      } catch (error) {
+        console.error("Error fetching location suggestions:", error);
+        setSuggestions([]);
+        setShowSuggestions(false);
+      }
     };
 
     const debounce = setTimeout(fetchSuggestions, 300);
     return () => clearTimeout(debounce);
   }, [location]);
 
-  // New: useEffect to handle clicks outside the suggestions container
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
@@ -86,7 +85,7 @@ const Home: React.FC = () => {
     };
   }, [suggestionsRef]);
 
-  const handleSuggestionClick = (suggestion: OlaMapsResult) => {
+  const handleSuggestionClick = (suggestion: GoMapsResult) => {
     setLocation(suggestion.description);
     setSuggestions([]);
     setShowSuggestions(false);
@@ -135,8 +134,7 @@ const Home: React.FC = () => {
             Plan your perfect trip with TravelWise – explore breathtaking destinations and curated packages.
           </p>
           <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2 w-full max-w-xs sm:max-w-md relative z-[1010]">
-            {/* New: Added ref={suggestionsRef} to this div */}
-            <div className="relative w-full sm:w-auto flex-1" ref={suggestionsRef}> 
+            <div className="relative w-full sm:w-auto flex-1" ref={suggestionsRef}>
               <input
                 type="text"
                 ref={inputRef}

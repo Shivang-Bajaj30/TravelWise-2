@@ -8,7 +8,7 @@ if (!local_url) {
   console.error("Local URL is not defined. Please check your environment variables.");
 }
 
-const BASE_URL = dev_url;
+const BASE_URL = local_url;
 
 export interface SignupRequest {
   name: string;
@@ -42,12 +42,6 @@ export const login = async (email: string, password: string): Promise<any> => {
   return data;
 };
 
-export interface NominatimResult {
-  display_name: string;
-  lat: string;
-  lon: string;
-}
-
 export interface TripDetails {
   location: string;
   travelers: number;
@@ -76,37 +70,20 @@ export const submitTripDetails = async (trip: TripDetails): Promise<string> => {
   }
 };
 
-export interface OlaMapsResult {
-  description: string;
-  geometry: {
-    location: {
-      lat: number;
-      lng: number;
-    };
-  };
-  place_id: string;
-}
-
-export const fetchLocationSuggestions = async (query: string): Promise<OlaMapsResult[]> => {
+export const getLocationSuggestions = async (query: string): Promise<any> => {
   try {
     const response = await fetch(`${BASE_URL}/locations?query=${encodeURIComponent(query)}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Request-Id': crypto.randomUUID(),
-        'X-Correlation-Id': crypto.randomUUID(),
-      },
+      method: "GET",
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch location suggestions: ${response.status} ${response.statusText}`);
+      const errorText = await response.text();
+      throw new Error(errorText || "Failed to fetch location suggestions");
     }
 
-    const data: OlaMapsResult[] = await response.json();
-    console.log('Fetched suggestions:', data);
-    return data;
+    return await response.json();
   } catch (error) {
-    console.error('Error fetching location suggestions:', error);
-    return [];
+    console.error("Error fetching location suggestions:", error);
+    throw error;
   }
 };
