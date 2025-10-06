@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { FaUserCircle, FaTimes, FaBars } from 'react-icons/fa';
+// ...existing code...
+import { FaTimes, FaBars } from 'react-icons/fa';
 
 const Navbar = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -9,7 +9,7 @@ const Navbar = () => {
   const [isDesktopDropdownOpen, setIsDesktopDropdownOpen] = useState(false);
 
   const location = useLocation();
-  const { user, logoutUser, loadingAuth } = useAuth();
+  // No authentication logic in frontend-only mode
 
   // Type refs with HTMLDivElement and HTMLButtonElement
   const desktopDropdownRef = useRef<HTMLDivElement>(null);
@@ -18,13 +18,6 @@ const Navbar = () => {
   const mobileButtonRef = useRef<HTMLButtonElement>(null);
 
   const isActive = (path: string): boolean => location.pathname === path;
-
-  const handleLogout = () => {
-    logoutUser();
-    setIsDesktopDropdownOpen(false);
-    setIsMobileUserDropdownOpen(false);
-    setIsDrawerOpen(false);
-  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -77,9 +70,7 @@ const Navbar = () => {
     setIsMobileUserDropdownOpen(false);
   }, [location.pathname]);
 
-  if (loadingAuth) {
-    return null;
-  }
+  // ...existing code...
 
   return (
     <>
@@ -133,121 +124,45 @@ const Navbar = () => {
 
             {/* Desktop Auth Links / User Icon */}
             <div className="hidden lg:flex items-center gap-2 xl:gap-4 relative">
-              {user ? (
-                <>
-                  <button
-                    ref={desktopButtonRef}
-                    onClick={() => setIsDesktopDropdownOpen(!isDesktopDropdownOpen)}
-                    className="p-2 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-300"
-                    aria-label="User menu"
-                  >
-                    <FaUserCircle className="w-6 h-6" />
-                  </button>
-                  {isDesktopDropdownOpen && (
-                    <div
-                      ref={desktopDropdownRef}
-                      className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-xl py-1 z-20"
-                    >
-                      <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
-                        Signed in as: <span className="font-semibold">{user.email}</span>
-                      </div>
-                      <Link
-                        to="/profile"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50"
-                        onClick={() => setIsDesktopDropdownOpen(false)}
-                      >
-                        Profile
-                      </Link>
-                      <button
-                        onClick={handleLogout}
-                        className="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50 font-semibold"
-                      >
-                        Logout
-                      </button>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <>
-                  <Link
-                    to="/login"
-                    className={`px-2 xl:px-4 py-2 rounded-lg font-semibold border border-red-200 transition-all duration-300 text-xs xl:text-base ${isActive('/login') ? 'bg-red-100 text-red-700 shadow' : 'text-red-600 hover:bg-red-50 hover:text-red-700 hover:shadow-sm'}`}
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    to="/signup"
-                    className={`px-3 xl:px-5 py-2 rounded-lg font-semibold transition-all duration-300 shadow-sm text-xs xl:text-base ${isActive('/signup') ? 'bg-gradient-to-r from-red-600 via-pink-500 to-red-400 text-white shadow-lg' : 'bg-gradient-to-r from-red-500 via-pink-400 to-red-300 text-white hover:from-red-600 hover:via-pink-500 hover:to-red-400 hover:shadow-lg hover:scale-105'}`}
-                  >
-                    Sign Up
-                  </Link>
-                </>
-              )}
+              <Link
+                to="/login"
+                className={`px-2 xl:px-4 py-2 rounded-lg font-semibold border border-red-200 transition-all duration-300 text-xs xl:text-base ${isActive('/login') ? 'bg-red-100 text-red-700 shadow' : 'text-red-600 hover:bg-red-50 hover:text-red-700 hover:shadow-sm'}`}
+              >
+                Login
+              </Link>
+              <Link
+                to="/signup"
+                className={`px-3 xl:px-5 py-2 rounded-lg font-semibold transition-all duration-300 shadow-sm text-xs xl:text-base ${isActive('/signup') ? 'bg-gradient-to-r from-red-600 via-pink-500 to-red-400 text-white shadow-lg' : 'bg-gradient-to-r from-red-500 via-pink-400 to-red-300 text-white hover:from-red-600 hover:via-pink-500 hover:to-red-400 hover:shadow-lg hover:scale-105'}`}
+              >
+                Sign Up
+              </Link>
             </div>
 
             {/* Mobile/Tablet Auth Links and Hamburger */}
             <div className="lg:hidden flex items-center gap-2">
-              {!user ? (
-                <>
-                  <Link
-                    to="/login"
-                    className={`px-2 py-1.5 rounded-lg font-semibold border border-red-200 transition-all duration-300 text-xs whitespace-nowrap ${isActive('/login') ? 'bg-red-100 text-red-700 shadow' : 'text-red-600 hover:bg-red-50 hover:text-red-700 hover:shadow-sm'}`}
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    to="/signup"
-                    className={`px-2.5 py-1.5 rounded-lg font-semibold transition-all duration-300 shadow-sm text-xs whitespace-nowrap ${isActive('/signup') ? 'bg-gradient-to-r from-red-600 via-pink-500 to-red-400 text-white shadow-lg' : 'bg-gradient-to-r from-red-500 via-pink-400 to-red-300 text-white hover:from-red-600 hover:via-pink-500 hover:to-red-400 hover:shadow-lg'}`}
-                  >
-                    Sign Up
-                  </Link>
-                </>
-              ) : (
-                <div className="relative flex-shrink-0">
-                  <button
-                    ref={mobileButtonRef}
-                    onClick={() => setIsMobileUserDropdownOpen(!isMobileUserDropdownOpen)}
-                    className="p-2 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-300"
-                    aria-label="User menu"
-                  >
-                    <FaUserCircle className="w-6 h-6" />
-                  </button>
-                  {isMobileUserDropdownOpen && (
-                    <div
-                      ref={mobileDropdownRef}
-                      className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-1 z-10"
-                    >
-                      <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
-                        Signed in as: <span className="font-semibold">{user.email}</span>
-                      </div>
-                      <Link
-                        to="/profile"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50"
-                        onClick={() => setIsMobileUserDropdownOpen(false)}
-                      >
-                        Profile
-                      </Link>
-                      <button
-                        onClick={handleLogout}
-                        className="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50 font-semibold"
-                      >
-                        Logout
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
+              <Link
+                to="/login"
+                className={`px-2 py-1.5 rounded-lg font-semibold border border-red-200 transition-all duration-300 text-xs whitespace-nowrap ${isActive('/login') ? 'bg-red-100 text-red-700 shadow' : 'text-red-600 hover:bg-red-50 hover:text-red-700 hover:shadow-sm'}`}
+              >
+                Login
+              </Link>
+              <Link
+                to="/signup"
+                className={`px-2.5 py-1.5 rounded-lg font-semibold transition-all duration-300 shadow-sm text-xs whitespace-nowrap ${isActive('/signup') ? 'bg-gradient-to-r from-red-600 via-pink-500 to-red-400 text-white shadow-lg' : 'bg-gradient-to-r from-red-500 via-pink-400 to-red-300 text-white hover:from-red-600 hover:via-pink-500 hover:to-red-400 hover:shadow-lg'}`}
+              >
+                Sign Up
+              </Link>
               <button
                 onClick={() => setIsDrawerOpen(!isDrawerOpen)}
                 className="text-red-700 hover:text-red-500 focus:outline-none p-2 rounded-lg border border-red-200 shadow-sm transition-all duration-300 bg-white/80"
                 aria-label="Toggle menu"
               >
-                <FaBars className="w-6 h-6 sm:w-7 sm:h-7" />
+                    <FaBars className="w-6 h-6 sm:w-7 sm:h-7" />
               </button>
             </div>
           </div>
         </div>
-      </nav>
+  </nav>
 
       {/* Mobile/Tablet Side Drawer */}
       <div
