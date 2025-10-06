@@ -21,62 +21,30 @@ const SignUp = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage({ type: '', text: '' });
-
-    const { username, email, password, confirmPassword } = formData;
-
-    if (!username || !email || !password || !confirmPassword) {
-      setMessage({ type: 'error', text: 'Please fill in all fields.' });
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setMessage({ type: 'error', text: 'Passwords do not match.' });
-      return;
-    }
-
-    if (password.length < 6) {
-      setMessage({ type: 'error', text: 'Password must be at least 6 characters long.' });
-      return;
-    }
-
     setLoading(true);
 
+      if (formData.password !== formData.confirmPassword) {
+      setMessage({ type: 'error', text: 'Passwords do not match.' });
+      setLoading(false);
+      return;
+    }
+    
     try {
-      const response = await signup({
-        name: username,
-        email,
-        password
-      });
-
-      if (response.ok) {
-        setMessage({
-          type: 'success',
-          text: 'Account created successfully! Redirecting to login...'
-        });
-
-        setFormData({
-          username: '',
-          email: '',
-          password: '',
-          confirmPassword: ''
-        });
-
+      const { username, email, password } = formData;
+      const res = await signup({ name: username, email, password });
+      if (res.error) {
+        setMessage({ type: 'error', text: res.error });
+      } else if (res.message) {
+        setMessage({ type: 'success', text: res.message });
+        setFormData({ username: '', email: '', password: '', confirmPassword: '' });
         setTimeout(() => {
           window.location.href = '/login';
         }, 2000);
       } else {
-        const errorText = await response.text();
-        setMessage({
-          type: 'error',
-          text: errorText || 'Failed to create account. Please try again.'
-        });
+        setMessage({ type: 'error', text: 'Unknown response from server.' });
       }
     } catch (error: any) {
-      console.error('Signup error:', error);
-      setMessage({
-        type: 'error',
-        text: 'Failed to create account. Please try again.'
-      });
+      setMessage({ type: 'error', text: error.message || 'Signup failed.' });
     } finally {
       setLoading(false);
     }
