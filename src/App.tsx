@@ -9,7 +9,8 @@ import SignUp from './pages/SignUp';
 import Home from './pages/Home';
 import Destinations from './pages/Destinations';
 import Packages from './pages/Packages';
-import TripDetails from './pages/TripDetails';
+import ItineraryPage from './pages/ItineraryPage';
+import TripDetailsPage from './pages/TripDetails';
 
 // ScrollToTop component to handle scrolling on route change
 const ScrollToTop = () => {
@@ -36,7 +37,8 @@ const App = () => (
         <Route path="/destinations" element={<Destinations />} />
         <Route path="/packages" element={<Packages />} />
         {/* <Route path="/" element={<Home />} /> Note: Duplicate route, consider removing */}
-        <Route path="/trip-details" element={<TripDetails selectedLocation={null} />} />
+        <Route path="/trip-details" element={<TripDetailsPage />} />
+        <Route path="/itinerary" element={<ItineraryPage />} />
       </Routes>
     </div>
   </div>

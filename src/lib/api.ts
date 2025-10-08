@@ -26,11 +26,32 @@ export const signup = async (data: { name: string; email: string; password: stri
   return response.json();
 };
 
-export const submitTripDetails = async (tripData: any) => {
-  const response = await fetch(`${BASE_URL}/trip`, {
+
+// export const generateItinerary = async (data: any) => {
+//   const res = await fetch(`${BASE_URL}/generate_itinerary`, {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify(data),
+//   });
+//   return res.json();
+// };
+
+export const generateItinerary = async (data: {
+  destination: string;
+  travelers: number;
+  startDate: string;
+  endDate: string;
+  preferences: string;
+}) => {
+  const res = await fetch(`${BASE_URL}/generate_itinerary`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(tripData),
+    body: JSON.stringify(data),
   });
-  return response.json();
+
+  if (!res.ok) {
+    throw new Error(`Failed to generate itinerary (${res.status})`);
+  }
+
+  return res.json();
 };
