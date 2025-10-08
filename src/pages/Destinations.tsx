@@ -4,7 +4,7 @@ const Destinations = () => {
       id: 1,
       name: "Paris, France",
       description: "The City of Light awaits with its iconic landmarks, world-class museums, and romantic atmosphere.",
-      image: "/images/paris.jpg",
+      image: "/images/paris.png",
       price: "From $1,299",
       duration: "7 days",
       highlights: ["Eiffel Tower", "Louvre Museum", "Seine River Cruise"]
@@ -13,7 +13,7 @@ const Destinations = () => {
       id: 2,
       name: "Tokyo, Japan",
       description: "Experience the perfect blend of ancient traditions and cutting-edge technology in Japan's capital.",
-      image: "/images/tokyo.jpg",
+      image: "/images/Japan.png",
       price: "From $1,599",
       duration: "10 days",
       highlights: ["Mount Fuji", "Shibuya Crossing", "Traditional Temples"]
@@ -22,7 +22,7 @@ const Destinations = () => {
       id: 3,
       name: "Santorini, Greece",
       description: "Discover stunning sunsets, white-washed buildings, and crystal-clear waters in this Greek paradise.",
-      image: "/images/santorini.jpg",
+      image: "/images/Greece.png",
       price: "From $999",
       duration: "5 days",
       highlights: ["Oia Village", "Blue Dome Churches", "Wine Tasting"]

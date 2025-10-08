@@ -1,1 +1,0 @@
-// AuthContext removed: This file is now unused in the frontend-only project.
