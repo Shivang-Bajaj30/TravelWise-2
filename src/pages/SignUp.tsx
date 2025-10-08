@@ -12,6 +12,10 @@ const SignUp = () => {
   const [message, setMessage] = useState<{ type: string; text: string }>({ type: '', text: '' });
   const [loading, setLoading] = useState(false);
 
+  // Add state for password visibility
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -23,7 +27,7 @@ const SignUp = () => {
     setMessage({ type: '', text: '' });
     setLoading(true);
 
-      if (formData.password !== formData.confirmPassword) {
+    if (formData.password !== formData.confirmPassword) {
       setMessage({ type: 'error', text: 'Passwords do not match.' });
       setLoading(false);
       return;
@@ -93,7 +97,7 @@ const SignUp = () => {
               />
             </div>
 
-            <div className="text-left mb-1">
+            <div className="text-left mb-1 relative">
               <label className="block mb-1 font-semibold text-blue-600">Password</label>
               <input
                 value={formData.password}
@@ -101,13 +105,34 @@ const SignUp = () => {
                 placeholder="********"
                 name="password"
                 id="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 disabled={loading}
-                className="w-full p-2 rounded-lg bg-white bg-opacity-80 text-black border border-blue-400 focus:ring-2 focus:ring-blue-400 focus:outline-none text-base transition-colors duration-200 hover:bg-blue-50 focus:border-blue-400"
+                className="w-full p-2 rounded-lg bg-white bg-opacity-80 text-black border border-blue-400 focus:ring-2 focus:ring-blue-400 focus:outline-none text-base transition-colors duration-200 hover:bg-blue-50 focus:border-blue-400 pr-10"
               />
+              <button
+                type="button"
+                tabIndex={-1}
+                className="absolute right-3 top-9 text-gray-500 hover:text-blue-600 focus:outline-none"
+                onClick={() => setShowPassword((prev) => !prev)}
+                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+              >
+                {showPassword ? (
+                  // Eye open SVG
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                ) : (
+                  // Eye closed SVG
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.956 9.956 0 012.442-4.362M6.634 6.634A9.956 9.956 0 0112 5c4.477 0 8.268 2.943 9.542 7a9.96 9.96 0 01-4.207 5.042M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3l18 18" />
+                  </svg>
+                )}
+              </button>
             </div>
 
-            <div className="text-left mb-1">
+            <div className="text-left mb-1 relative">
               <label className="block mb-1 font-semibold text-blue-600">Confirm Password</label>
               <input
                 value={formData.confirmPassword}
@@ -115,10 +140,31 @@ const SignUp = () => {
                 placeholder="********"
                 name="confirmPassword"
                 id="confirmPassword"
-                type="password"
+                type={showConfirmPassword ? "text" : "password"}
                 disabled={loading}
-                className="w-full p-2 rounded-lg bg-white bg-opacity-80 text-black border border-blue-400 focus:ring-2 focus:ring-blue-400 focus:outline-none text-base transition-colors duration-200 hover:bg-blue-50 focus:border-blue-400"
+                className="w-full p-2 rounded-lg bg-white bg-opacity-80 text-black border border-blue-400 focus:ring-2 focus:ring-blue-400 focus:outline-none text-base transition-colors duration-200 hover:bg-blue-50 focus:border-blue-400 pr-10"
               />
+              <button
+                type="button"
+                tabIndex={-1}
+                className="absolute right-3 top-9 text-gray-500 hover:text-blue-600 focus:outline-none"
+                onClick={() => setShowConfirmPassword((prev) => !prev)}
+                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+              >
+                {showConfirmPassword ? (
+                  // Eye open SVG
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                ) : (
+                  // Eye closed SVG
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.956 9.956 0 012.442-4.362M6.634 6.634A9.956 9.956 0 0112 5c4.477 0 8.268 2.943 9.542 7a9.96 9.96 0 01-4.207 5.042M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3l18 18" />
+                  </svg>
+                )}
+              </button>
             </div>
 
             {message.text && (

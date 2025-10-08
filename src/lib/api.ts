@@ -6,8 +6,16 @@ export const login = async (email: string, password: string) => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
   });
-  return response.json();
+  const data = await response.json();
+
+  if (response.ok && data.token) {
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+  }
+
+  return data;
 };
+
 
 export const signup = async (data: { name: string; email: string; password: string }) => {
   const response = await fetch(`${BASE_URL}/signup`, {

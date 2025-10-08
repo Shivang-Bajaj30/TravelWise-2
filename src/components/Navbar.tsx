@@ -1,6 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
-// ...existing code...
 import { FaTimes, FaBars } from 'react-icons/fa';
 
 const Navbar = () => {
@@ -9,15 +8,19 @@ const Navbar = () => {
   const [isDesktopDropdownOpen, setIsDesktopDropdownOpen] = useState(false);
 
   const location = useLocation();
-  // No authentication logic in frontend-only mode
 
-  // Type refs with HTMLDivElement and HTMLButtonElement
   const desktopDropdownRef = useRef<HTMLDivElement>(null);
   const desktopButtonRef = useRef<HTMLButtonElement>(null);
   const mobileDropdownRef = useRef<HTMLDivElement>(null);
   const mobileButtonRef = useRef<HTMLButtonElement>(null);
+  const [user, setUser] = useState<any | null>(null);
 
   const isActive = (path: string): boolean => location.pathname === path;
+
+  useEffect(() => {
+  const storedUser = localStorage.getItem("user");
+  if (storedUser) setUser(JSON.parse(storedUser));
+}, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -122,21 +125,74 @@ const Navbar = () => {
               </Link>
             </div>
 
-            {/* Desktop Auth Links / User Icon */}
-            <div className="hidden lg:flex items-center gap-2 xl:gap-4 relative">
-              <Link
-                to="/login"
-                className={`px-2 xl:px-4 py-2 rounded-lg font-semibold border border-red-200 transition-all duration-300 text-xs xl:text-base ${isActive('/login') ? 'bg-red-100 text-red-700 shadow' : 'text-red-600 hover:bg-red-50 hover:text-red-700 hover:shadow-sm'}`}
-              >
-                Login
-              </Link>
-              <Link
-                to="/signup"
-                className={`px-3 xl:px-5 py-2 rounded-lg font-semibold transition-all duration-300 shadow-sm text-xs xl:text-base ${isActive('/signup') ? 'bg-gradient-to-r from-red-600 via-pink-500 to-red-400 text-white shadow-lg' : 'bg-gradient-to-r from-red-500 via-pink-400 to-red-300 text-white hover:from-red-600 hover:via-pink-500 hover:to-red-400 hover:shadow-lg hover:scale-105'}`}
-              >
-                Sign Up
-              </Link>
-            </div>
+            {/* Desktop Auth / User Icon */}
+<div className="hidden lg:flex items-center gap-2 xl:gap-4 relative">
+  {!user ? (
+    <>
+      <Link
+        to="/login"
+        className={`px-2 xl:px-4 py-2 rounded-lg font-semibold border border-red-200 transition-all duration-300 text-xs xl:text-base ${
+          isActive('/login')
+            ? 'bg-red-100 text-red-700 shadow'
+            : 'text-red-600 hover:bg-red-50 hover:text-red-700 hover:shadow-sm'
+        }`}
+      >
+        Login
+      </Link>
+      <Link
+        to="/signup"
+        className={`px-3 xl:px-5 py-2 rounded-lg font-semibold transition-all duration-300 shadow-sm text-xs xl:text-base ${
+          isActive('/signup')
+            ? 'bg-gradient-to-r from-red-600 via-pink-500 to-red-400 text-white shadow-lg'
+            : 'bg-gradient-to-r from-red-500 via-pink-400 to-red-300 text-white hover:from-red-600 hover:via-pink-500 hover:to-red-400 hover:shadow-lg hover:scale-105'
+        }`}
+      >
+        Sign Up
+      </Link>
+    </>
+  ) : (
+    <div className="relative" ref={desktopDropdownRef}>
+      <button
+        ref={desktopButtonRef}
+        onClick={() => setIsDesktopDropdownOpen(!isDesktopDropdownOpen)}
+        className="flex items-center gap-2 p-2 bg-white/70 rounded-full border border-red-300 hover:shadow transition"
+      >
+        <img
+          src="/images/profile-icon.png"
+          alt="Profile"
+          className="w-8 h-8 rounded-full border border-gray-300"
+        />
+        <span className="font-semibold text-gray-700">{user.name.split(' ')[0]}</span>
+      </button>
+
+      {isDesktopDropdownOpen && (
+        <div
+          ref={desktopDropdownRef}
+          className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-red-200 text-sm text-gray-800 z-50"
+        >
+          <Link
+            to="/profile"
+            className="block px-4 py-2 hover:bg-red-50 hover:text-red-600"
+          >
+            Profile
+          </Link>
+          <button
+            onClick={() => {
+              localStorage.removeItem("user");
+              localStorage.removeItem("token");
+              setUser(null);
+              window.location.href = "/";
+            }}
+            className="block w-full text-left px-4 py-2 hover:bg-red-50 hover:text-red-600"
+          >
+            Logout
+          </button>
+        </div>
+      )}
+    </div>
+  )}
+</div>
+
 
             {/* Mobile/Tablet Auth Links and Hamburger */}
             <div className="lg:hidden flex items-center gap-2">
